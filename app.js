@@ -1,57 +1,66 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Paciente HL7 FHIR</title>
-</head>
-<body>
-    <h1>Formulario de Paciente HL7 FHIR</h1>
-    <form id="patientForm">
-        <label for="name">Nombre:</label>
-        <input type="text" id="name" name="name" required><br><br>
+document.getElementById('patientForm').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-        <label for="familyName">Apellido:</label>
-        <input type="text" id="familyName" name="familyName" required><br><br>
+    // Obtener los valores del formulario
+    const name = document.getElementById('name').value;
+    const familyName = document.getElementById('familyName').value;
+    const gender = document.getElementById('gender').value;
+    const birthDate = document.getElementById('birthDate').value;
+    const identifierSystem = document.getElementById('identifierSystem').value;
+    const identifierValue = document.getElementById('identifierValue').value;
+    const cellPhone = document.getElementById('cellPhone').value;
+    const email = document.getElementById('email').value;
+    const address = document.getElementById('address').value;
+    const city = document.getElementById('city').value;
+    const postalCode = document.getElementById('postalCode').value;
 
-        <label for="gender">Género:</label>
-        <select id="gender" name="gender" required>
-            <option value="male">Masculino</option>
-            <option value="female">Femenino</option>
-            <option value="other">Otro</option>
-            <option value="unknown">Desconocido</option>
-        </select><br><br>
+    // Crear el objeto Patient en formato FHIR
+    const patient = {
+        resourceType: "Patient",
+        name: [{
+            use: "official",
+            given: [name],
+            family: familyName
+        }],
+        gender: gender,
+        birthDate: birthDate,
+        identifier: [{
+            system: identifierSystem,
+            value: identifierValue
+        }],
+        telecom: [{
+            system: "phone",
+            value: cellPhone,
+            use: "home"
+        }, {
+            system: "email",
+            value: email,
+            use: "home"
+        }],
+        address: [{
+            use: "home",
+            line: [address],
+            city: city,
+            postalCode: postalCode,
+            country: "Colombia"
+        }]
+    };
 
-        <label for="birthDate">Fecha de Nacimiento:</label>
-        <input type="date" id="birthDate" name="birthDate" required><br><br>
-
-        <label for="identifierSystem">Tipo de documento de identidad:</label>
-        <select id="identifierSystem" name="identifierSystem" required>
-            <option value="http://cedula">Cédula de ciudadanía</option>
-            <option value="http://pasaporte">Pasaporte</option>
-        </select><br><br>
-
-        <label for="identifierValue">Número de documento:</label>
-        <input type="text" id="identifierValue" name="identifierValue" required><br><br>
-
-        <label for="cellPhone">Teléfono celular:</label>
-        <input type="text" id="cellPhone" name="cellPhone" required><br><br>
-
-        <label for="email">Correo electrónico:</label>
-        <input type="text" id="email" name="email" required><br><br>
-
-        <label for="address">Dirección:</label>
-        <input type="text" id="address" name="address" required><br><br>
-
-        <label for="city">Ciudad:</label>
-        <input type="text" id="city" name="city" required><br><br>
-
-        <label for="postalCode">Código postal:</label>
-        <input type="text" id="postalCode" name="postalCode" required><br><br>
-
-        <button type="submit">Enviar</button>
-    </form>
-
-    <script src="app.js"></script>
-</body>
-</html>
+    // Enviar los datos usando Fetch API
+    fetch('https://hl7-fhir-ehr-gabriela-787.onrender.com/patient', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(patient)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        alert('Paciente creado exitosamente!');
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('Hubo un error al crear el paciente.');
+    });
+});
