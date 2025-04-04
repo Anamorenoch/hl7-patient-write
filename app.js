@@ -1,66 +1,75 @@
-document.getElementById('patientForm').addEventListener('submit', function(event) {
+document.getElementById('appointmentForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     // Obtener los valores del formulario
-    const name = document.getElementById('name').value;
-    const familyName = document.getElementById('familyName').value;
-    const gender = document.getElementById('gender').value;
-    const birthDate = document.getElementById('birthDate').value;
-    const identifierSystem = document.getElementById('identifierSystem').value;
-    const identifierValue = document.getElementById('identifierValue').value;
-    const cellPhone = document.getElementById('cellPhone').value;
-    const email = document.getElementById('email').value;
-    const address = document.getElementById('address').value;
-    const city = document.getElementById('city').value;
-    const postalCode = document.getElementById('postalCode').value;
+    const patientReference = document.getElementById('patientReference').value;
+    const practitionerReference = document.getElementById('practitionerReference').value;
+    const locationReference = document.getElementById('locationReference').value;
+    const appointmentTypeCode = document.getElementById('appointmentType').value;
+    const appointmentTypeDisplay = document.getElementById('appointmentType').selectedOptions[0].text;
+    const appointmentDate = document.getElementById('appointmentDate').value;
+    const appointmentTime = document.getElementById('appointmentTime').value;
+    const description = document.getElementById('description').value;
 
-    // Crear el objeto Patient en formato FHIR
-    const patient = {
-        resourceType: "Patient",
-        name: [{
-            use: "official",
-            given: [name],
-            family: familyName
-        }],
-        gender: gender,
-        birthDate: birthDate,
-        identifier: [{
-            system: identifierSystem,
-            value: identifierValue
-        }],
-        telecom: [{
-            system: "phone",
-            value: cellPhone,
-            use: "home"
-        }, {
-            system: "email",
-            value: email,
-            use: "home"
-        }],
-        address: [{
-            use: "home",
-            line: [address],
-            city: city,
-            postalCode: postalCode,
-            country: "Colombia"
-        }]
+    // Formatear la hora ISO 8601 con Z
+    const startDateTime = new Date(`${appointmentDate}T${appointmentTime}:00`).toISOString();
+
+    // Crear el objeto Appointment en formato HL7 FHIR
+    const appointment = {
+        resourceType: "Appointment",
+        status: "booked",
+        appointmentType: {
+            coding: [{
+                system: "http://terminology.hl7.org/CodeSystem/v2-0276",
+                code: appointmentTypeCode,
+                display: appointmentTypeDisplay
+            }]
+        },
+        description: description,
+        start: startDateTime,
+        participant: [
+            {
+                actor: {
+                    reference: patientReference,
+                    display: "Paciente"
+                },
+                required: true,
+                status: "accepted"
+            },
+            {
+                actor: {
+                    reference: practitionerReference,
+                    display: "Profesional de salud"
+                },
+                required: true,
+                status: "accepted"
+            },
+            {
+                actor: {
+                    reference: locationReference,
+                    display: "Ubicación de la cita"
+                },
+                required: true,
+                status: "accepted"
+            }
+        ]
     };
 
     // Enviar los datos usando Fetch API
-    fetch('https://hl7-fhir-ehr-ana-006.onrender.com/patient', {
+    fetch('https://hl7-fhir-ehr-ana-006.onrender.com/appointment', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(patient)
+        body: JSON.stringify(appointment)
     })
     .then(response => response.json())
     .then(data => {
         console.log('Success:', data);
-        alert('Paciente creado exitosamente!');
+        alert('¡Cita registrada exitosamente!');
     })
     .catch((error) => {
         console.error('Error:', error);
-        alert('Hubo un error al crear el paciente.');
+        alert('Hubo un error al registrar la cita.');
     });
 });
