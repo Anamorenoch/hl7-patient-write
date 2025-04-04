@@ -1,132 +1,57 @@
-document.getElementById('appointmentForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Paciente HL7 FHIR</title>
+</head>
+<body>
+    <h1>Formulario de Paciente HL7 FHIR</h1>
+    <form id="patientForm">
+        <label for="name">Nombre:</label>
+        <input type="text" id="name" name="name" required><br><br>
 
-    // Obtener valores del formulario
-    const patientReference = document.getElementById('patientReference').value;
-    const patientName = document.getElementById('patientName').value;
+        <label for="familyName">Apellido:</label>
+        <input type="text" id="familyName" name="familyName" required><br><br>
 
-    const practitionerReference = document.getElementById('practitionerReference').value;
-    const practitionerName = document.getElementById('practitionerName').value;
+        <label for="gender">Género:</label>
+        <select id="gender" name="gender" required>
+            <option value="male">Masculino</option>
+            <option value="female">Femenino</option>
+            <option value="other">Otro</option>
+            <option value="unknown">Desconocido</option>
+        </select><br><br>
 
-    const locationReference = document.getElementById('locationReference').value;
-    const locationDisplay = document.getElementById('locationDisplay').value;
+        <label for="birthDate">Fecha de Nacimiento:</label>
+        <input type="date" id="birthDate" name="birthDate" required><br><br>
 
-    const appointmentTypeCode = document.getElementById('appointmentType').value;
-    const appointmentTypeDisplay = document.getElementById('appointmentType').selectedOptions[0].text;
+        <label for="identifierSystem">Tipo de documento de identidad:</label>
+        <select id="identifierSystem" name="identifierSystem" required>
+            <option value="http://cedula">Cédula de ciudadanía</option>
+            <option value="http://pasaporte">Pasaporte</option>
+        </select><br><br>
 
-    const serviceCategoryCode = document.getElementById('serviceCategory').value;
-    const serviceCategoryDisplay = document.getElementById('serviceCategory').selectedOptions[0].text;
+        <label for="identifierValue">Número de documento:</label>
+        <input type="text" id="identifierValue" name="identifierValue" required><br><br>
 
-    const serviceTypeCode = document.getElementById('serviceType').value;
-    const serviceTypeDisplay = document.getElementById('serviceType').selectedOptions[0].text;
+        <label for="cellPhone">Teléfono celular:</label>
+        <input type="text" id="cellPhone" name="cellPhone" required><br><br>
 
-    const specialtyCode = document.getElementById('specialty').value;
-    const specialtyDisplay = document.getElementById('specialty').selectedOptions[0].text;
+        <label for="email">Correo electrónico:</label>
+        <input type="text" id="email" name="email" required><br><br>
 
-    const reasonReference = document.getElementById('reasonReference').value;
-    const reasonDisplay = document.getElementById('reasonDisplay').value;
+        <label for="address">Dirección:</label>
+        <input type="text" id="address" name="address" required><br><br>
 
-    const description = document.getElementById('description').value;
-    const notes = document.getElementById('notes').value;
+        <label for="city">Ciudad:</label>
+        <input type="text" id="city" name="city" required><br><br>
 
-    const appointmentDate = document.getElementById('appointmentDate').value;
-    const appointmentStartTime = document.getElementById('appointmentStartTime').value;
-    const appointmentEndTime = document.getElementById('appointmentEndTime').value;
+        <label for="postalCode">Código postal:</label>
+        <input type="text" id="postalCode" name="postalCode" required><br><br>
 
-    // Fechas en formato ISO
-    const start = new Date(`${appointmentDate}T${appointmentStartTime}:00`).toISOString();
-    const end = new Date(`${appointmentDate}T${appointmentEndTime}:00`).toISOString();
-    const created = new Date().toISOString().split('T')[0]; // solo la fecha
+        <button type="submit">Enviar</button>
+    </form>
 
-    // Crear el objeto Appointment en formato HL7 FHIR
-    const appointment = {
-        resourceType: "Appointment",
-        status: "booked",
-        serviceCategory: [{
-            coding: [{
-                system: "http://example.org/service-category",
-                code: serviceCategoryCode,
-                display: serviceCategoryDisplay
-            }]
-        }],
-        serviceType: [{
-            concept: {
-                coding: [{
-                    code: serviceTypeCode,
-                    display: serviceTypeDisplay
-                }]
-            }
-        }],
-        specialty: [{
-            coding: [{
-                system: "http://snomed.info/sct",
-                code: specialtyCode,
-                display: specialtyDisplay
-            }]
-        }],
-        appointmentType: {
-            coding: [{
-                system: "http://terminology.hl7.org/CodeSystem/v2-0276",
-                code: appointmentTypeCode,
-                display: appointmentTypeDisplay
-            }]
-        },
-        reason: [{
-            reference: {
-                reference: reasonReference,
-                display: reasonDisplay
-            }
-        }],
-        description: description,
-        start: start,
-        end: end,
-        created: created,
-        note: [{
-            text: notes
-        }],
-        participant: [
-            {
-                actor: {
-                    reference: patientReference,
-                    display: patientName
-                },
-                required: true,
-                status: "accepted"
-            },
-            {
-                actor: {
-                    reference: practitionerReference,
-                    display: practitionerName
-                },
-                required: true,
-                status: "accepted"
-            },
-            {
-                actor: {
-                    reference: locationReference,
-                    display: locationDisplay
-                },
-                required: true,
-                status: "accepted"
-            }
-        ]
-    };
-
-    // Enviar los datos al servidor
-    fetch('https://hl7-fhir-ehr-ana-006.onrender.com/appointment', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(appointment)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        alert('¡Cita registrada exitosamente!');
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-        alert('Hubo un error al registrar la cita.');
-    });
-});
+    <script src="app.js"></script>
+</body>
+</html>
